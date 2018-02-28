@@ -12,10 +12,9 @@
 export default {
   name: 'MapSimulator',
   components: {MapArea, ToolArea},
-  data() {
-    return {
-    };
-  },
+  data: () => ({
+
+  }),
   mounted () {
   },
 };

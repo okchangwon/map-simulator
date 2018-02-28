@@ -2,7 +2,7 @@
   <div class="map-area">
     <div ref="stage" class="map-scroll-stage" @scroll="onScroll" @mousewheel.prevent="onMousewheel">
       <map-layer ref="mapLayer" :viewport="viewport"></map-layer>
-      <grid-layer :viewport="viewport" @click="onClickGridCell"></grid-layer>
+      <grid-layer :viewport="viewport" @click="onClickGridCell" v-if="showGrid"></grid-layer>
     </div>
     <div class="map-pos">{{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}</div>
   </div>
@@ -11,17 +11,26 @@
 import MapLayer from './stage/MapLayer.vue';
 import GridLayer from './stage/GridLayer.vue';
 
+const HIDE_GRID_WHEN_SCROLLING = true;
+
 export default {
   name: 'MapArea',
   components: {MapLayer, GridLayer},
   data: () => ({
     viewport: {
-      left: localStorage.getItem('viewportLeft') || 21835,
-      top: localStorage.getItem('viewportTop') || 10135,
+      left: 0,
+      top: 0,
       width: 0,
       height: 0,
-    }
+    },
+    isScrolling : false,
+    scrollingTimer : null,
   }),
+  computed: {
+    showGrid () {
+      return !HIDE_GRID_WHEN_SCROLLING || !this.isScrolling;
+    },
+  },
   mounted() {
     this.$nextTick(() => {
       this.setScroll();
@@ -35,6 +44,13 @@ export default {
         this.viewport.width = $(this.$refs.stage).width();
         this.viewport.height = $(this.$refs.stage).height();
       });
+
+      if(localStorage.getItem('viewportLeft')) {
+        this.viewport.left = localStorage.getItem('viewportLeft');
+        this.viewport.top = localStorage.getItem('viewportTop');
+      }else{
+        this.setViewportToCenter();
+      }
     })
   },
   watch: {
@@ -62,10 +78,25 @@ export default {
       this.viewport.left = $target.scrollLeft();
       this.viewport.top = $target.scrollTop();
 
+      this.setScrollingFlag();
+
       e.preventDefault();
       e.stopImmediatePropagation();
       e.stopPropagation();
       return false;
+    },
+    setScrollingFlag () {
+      this.isScrolling = true;
+
+      if(this.scrollingTimer){
+        clearTimeout(this.scrollingTimer);
+      }
+
+      this.scrollingTimer = setTimeout(() => {
+        this.$nextTick(() => {
+          this.isScrolling = false;
+        });
+      }, 50);
     },
     onMousewheel(e) {
       const speed = 3;
@@ -80,6 +111,10 @@ export default {
     },
     onClickGridCell(cell) {
       console.log(cell);
+      this.$store.commit('toggleArea', {
+        x: cell.x,
+        y: cell.y
+      });
     }
   }
 }
