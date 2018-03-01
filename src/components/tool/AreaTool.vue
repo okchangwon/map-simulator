@@ -2,15 +2,15 @@
   <div class="area-tool">
     <h2 class="tool-title">영역 설정</h2>
     <ul class="tool-body">
+      <li class="add"><button @click="onClickAddOwner">추가</button></li>
       <li v-for="owner in owners" class="owner"
           :key="owner.id"
           :class="{selected:selectedOwnerId===owner.id}"
           @click="onClickOwner(owner)"
           @dblclick="onDblclick(owner)">
         <button :style="{'background-color':owner.color}">{{owner.name}}</button>
-        <span class="remove-btn" @click.stop="onClickRemoveOwner(owner)">삭제</span>
+        <span class="remove-btn" @click.stop="onClickRemoveOwner(owner)" @dblclick.stop="">삭제</span>
       </li>
-      <li class="add"><button @click="onClickAddOwner">추가</button></li>
     </ul>
   </div>
 </template>
