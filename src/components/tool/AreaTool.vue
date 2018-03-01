@@ -90,10 +90,9 @@
 
   .area-tool li button {
     display:block;
-    width:52px;
-    height:52px;
-    margin-right:5px;
-    margin-bottom:5px;
+    width:51px;
+    height:51px;
+    margin:0 2px 5px 2px;
     border:0;
     border-radius:10px;
     background-color:#000;

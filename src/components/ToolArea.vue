@@ -20,11 +20,11 @@
   top:5px;
   right:5px;
   bottom:5px;
-  width:250px;
+  width:240px;
   margin:1px;
   background-color:rgba(255,255,255,0.3);
   border-radius:10px;
-  overflow:auto;
+  overflow-y:auto;
 }
 
 .tool-area h1 {
