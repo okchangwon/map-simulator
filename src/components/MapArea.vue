@@ -2,7 +2,7 @@
   <div class="map-area" :class="{dragging:isDragging}">
     <div ref="stage" class="map-scroll-stage" @scroll="onScroll" @mousewheel.prevent="onMousewheel">
       <map-layer ref="mapLayer" :viewport="viewport"></map-layer>
-      <grid-layer :viewport="viewport" :visible="showGridChecked" v-if="renderGrid" @click="onClickGridCell"></grid-layer>
+      <grid-layer :viewport="viewport" :visible="showGridChecked" v-if="renderGrid"></grid-layer>
     </div>
     <div class="map-pos">
       {{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}<br />
@@ -121,12 +121,6 @@ export default {
     },
     onMousewheel(e) {
       this.adjustViewportPosition(e.deltaX, e.deltaY, 3);
-    },
-    onClickGridCell(cell) {
-      this.$store.commit('toggleArea', {
-        x: cell.x,
-        y: cell.y
-      });
     },
     onMousedown(e){
       this.mousedownFlag = true;

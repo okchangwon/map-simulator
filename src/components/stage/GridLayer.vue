@@ -3,7 +3,8 @@
     <table ref="table" :class="{transparent:!visible}" :style="{width:tableWidth+'px', height:tableHeight+'px', left:adjustLeft+'px', top:adjustTop+'px'}">
       <tr v-for="row in cells">
         <td class="cell" v-for="cell in row" :key="cell.key" :style="{width:cellWidth+'px', height:cellHeight+'px'}" @click="onClickCell(cell)" :title="cell.x + ', ' + cell.y">
-          <area-cell :x="cell.x" :y="cell.y" v-if="isArea(cell)"></area-cell>
+          <area-cell :x="cell.x" :y="cell.y" v-if="isArea(cell)" />
+          <dimmed-cell v-if="isDimmed(cell)" />
         </td>
       </tr>
     </table>
@@ -11,6 +12,7 @@
 </template>
 <script>
 import AreaCell from './AreaCell.vue';
+import DimmedCell from './DimmedCell.vue';
 
 const CELL_WIDTH = 33;
 const CELL_HEIGHT = 33;
@@ -21,7 +23,7 @@ const ADJUST_Y = 8;
 
 export default {
   name: 'GridLayer',
-  components: {AreaCell},
+  components: {AreaCell,DimmedCell},
   props: {
     viewport: {
       type: Object,
@@ -90,11 +92,11 @@ export default {
           x = x - Math.floor(this.viewport.left / ADJUST_UNIT_X) + Math.floor(this.viewport.top / ADJUST_UNIT_Y);
           y = y + Math.floor(this.viewport.left / ADJUST_UNIT_X) + Math.floor(this.viewport.top / ADJUST_UNIT_Y);
 
-          cells[i][j] = {
-            x,
-            y,
-            key: x + '_' + y,
-          };
+          cells[i][j].x = x;
+          cells[i][j].y = y;
+          cells[i][j].i = i;
+          cells[i][j].j = j;
+          cells[i][j].key = x + '_' + y;
         }
       }
     },
@@ -108,17 +110,57 @@ export default {
             cells[i] = {};
           }
 
-          cells[i][j] = {x:0, y:0};
+          cells[i][j] = {x:0, y:0, i, j};
         }
       }
 
       this.cells = cells;
     },
     onClickCell(cell){
-      this.$emit('click', cell);
+      if(this.$store.state.area.selectedOwnerId) {
+        if (this.isDimmed(cell)) {
+          return;
+        }
+
+        this.$store.commit('toggleArea', {
+          x: cell.x,
+          y: cell.y
+        });
+      }
     },
-    isArea(cell){
-      return this.$store.state.area.areas.find(area => area.x===cell.x && area.y===cell.y);
+    isArea(cell, areas){
+      areas = areas || this.$store.state.area.areas;
+      return areas.find(area => area.x===cell.x && area.y===cell.y);
+    },
+    isDimmed(cell) {
+      // 현재 오너의 영역이 없으면 false
+      // 있고 인접하지 않은 셀이면 true
+      if(!this.$store.state.area.selectedOwnerId){
+        return false;
+      }
+
+      const state = this.$store.state;
+      const ownerAreas = state.area.areas.filter(area => area.ownerId === state.area.selectedOwnerId);
+      const otherAreas = state.area.areas.filter(area => area.ownerId !== state.area.selectedOwnerId);
+      let dimmed = true;
+
+      if (ownerAreas.length && !this.isArea(cell, otherAreas)) {
+        if (this.isArea(cell, ownerAreas)) {
+          dimmed = false;
+        } else if (this.cells[cell.i][cell.j - 1] && this.isArea(this.cells[cell.i][cell.j - 1], ownerAreas)) {
+          dimmed = false;
+        } else if (this.cells[cell.i][cell.j + 1] && this.isArea(this.cells[cell.i][cell.j + 1], ownerAreas)) {
+          dimmed = false;
+        } else if (this.cells[cell.i - 1] && this.cells[cell.i - 1][cell.j] && this.isArea(this.cells[cell.i - 1][cell.j], ownerAreas)) {
+          dimmed = false;
+        } else if (this.cells[cell.i + 1] && this.cells[cell.i + 1][cell.j] && this.isArea(this.cells[cell.i + 1][cell.j], ownerAreas)) {
+          dimmed = false;
+        }
+      } else if (!this.isArea(cell, otherAreas) && !this.isArea(cell, ownerAreas)) {
+        dimmed = false;
+      }
+
+      return dimmed;
     }
   }
 };

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-const BG_OPACITY = 0.8;
+const BG_OPACITY = 0.5;
 
 export default {
   name: 'AreaCell',

@@ -27,7 +27,7 @@
     },
     methods: {
       onClickOwner (owner) {
-        this.$store.commit('selectOwner', {
+        this.$store.commit('toggleOwner', {
           ownerId: owner.id
         });
       },

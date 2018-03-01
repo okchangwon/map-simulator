@@ -4,16 +4,8 @@ export default {
       {id: 1, color: '#0000ff', name: '옥'},
       {id: 2, color: '#00ff00', name: '박'},
     ],
-    areas: [
-      {ownerId:1,x:1016,y:1013},
-      {ownerId:1,x:1016,y:1014},
-      {ownerId:2,x:1019,y:1020},
-      {ownerId:2,x:1019,y:1021},
-      {ownerId:2,x:1019,y:1022},
-      {ownerId:2,x:1018,y:1021},
-      {ownerId:2,x:1020,y:1021},
-    ],
-    selectedOwnerId: 1,
+    areas: [],
+    selectedOwnerId: null,
   },
   mutations: {
     addOwner (state, payload) {
@@ -39,8 +31,8 @@ export default {
         state.areas.splice(state.areas.indexOf(area), 1);
       });
     },
-    selectOwner (state, payload) {
-      state.selectedOwnerId = payload.ownerId;
+    toggleOwner (state, payload) {
+      state.selectedOwnerId = state.selectedOwnerId === payload.ownerId ? null : payload.ownerId;
     },
     toggleArea (state, payload) {
       const findedArea = state.areas.find(area => area.x === payload.x && area.y === payload.y);
