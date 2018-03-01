@@ -1,8 +1,8 @@
 <template>
-  <div class="map-area">
+  <div class="map-area" :class="{dragging:isDragging}">
     <div ref="stage" class="map-scroll-stage" @scroll="onScroll" @mousewheel.prevent="onMousewheel">
       <map-layer ref="mapLayer" :viewport="viewport"></map-layer>
-      <grid-layer :viewport="viewport" @click="onClickGridCell" v-if="showGrid"></grid-layer>
+      <grid-layer :viewport="viewport" v-if="showGrid" @click="onClickGridCell"></grid-layer>
     </div>
     <div class="map-pos">{{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}</div>
   </div>
@@ -23,8 +23,10 @@ export default {
       width: 0,
       height: 0,
     },
-    isScrolling : false,
-    scrollingTimer : null,
+    isScrolling: false,
+    scrollingTimer: null,
+    mousedownFlag: false,
+    isDragging: false,
   }),
   computed: {
     showGrid () {
@@ -44,6 +46,10 @@ export default {
         this.viewport.width = $(this.$refs.stage).width();
         this.viewport.height = $(this.$refs.stage).height();
       });
+
+      $(this.$refs.stage).on('mousedown', this.onMousedown.bind(this));
+      $(window).on('mousemove', this.onMousemove.bind(this));
+      $(window).on('mouseup', this.onMouseup.bind(this));
 
       if(localStorage.getItem('viewportLeft')) {
         this.viewport.left = localStorage.getItem('viewportLeft');
@@ -98,10 +104,9 @@ export default {
         });
       }, 50);
     },
-    onMousewheel(e) {
-      const speed = 3;
-      let left = Math.max(0, this.viewport.left + e.deltaX * speed);
-      let top = Math.max(0, this.viewport.top + e.deltaY * speed);
+    adjustViewportPosition(x, y, speed=3){
+      let left = Math.max(0, this.viewport.left + x * speed);
+      let top = Math.max(0, this.viewport.top + y * speed);
 
       left = Math.min(left, this.$refs.mapLayer.$data.mapWidth - this.viewport.width);
       top = Math.min(top, this.$refs.mapLayer.$data.mapHeight - this.viewport.height);
@@ -109,12 +114,29 @@ export default {
       this.viewport.left = left;
       this.viewport.top = top;
     },
+    onMousewheel(e) {
+      this.adjustViewportPosition(e.deltaX, e.deltaY, 3);
+    },
     onClickGridCell(cell) {
-      console.log(cell);
       this.$store.commit('toggleArea', {
         x: cell.x,
         y: cell.y
       });
+    },
+    onMousedown(e){
+      this.mousedownFlag = true;
+      this.isDragging = false;
+      console.log(this.mousedownFlag);
+    },
+    onMousemove(e){
+      if(this.mousedownFlag){
+        this.isDragging = true;
+        this.adjustViewportPosition(-e.originalEvent.movementX, -e.originalEvent.movementY, 1);
+      }
+    },
+    onMouseup(e){
+      this.mousedownFlag = false;
+      this.isDragging = false;
     }
   }
 }
@@ -136,5 +158,9 @@ export default {
     bottom:0;
     background-color:#122549;
     overflow:auto;
+  }
+
+  .map-area.dragging {
+    cursor:move;
   }
 </style>
