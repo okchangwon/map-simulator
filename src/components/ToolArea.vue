@@ -6,7 +6,7 @@
   </div>
 </template>
 <script>
-  import AreaTool from './tools/AreaTool.vue';
+  import AreaTool from './tool/AreaTool.vue';
 
   export default {
     name: 'ToolArea',
