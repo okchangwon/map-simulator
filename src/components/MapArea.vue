@@ -29,6 +29,7 @@ export default {
     isScrolling: false,
     scrollingTimer: null,
     mousedownFlag: false,
+    mousedownOffset: null,
     isDragging: false,
     showGridChecked: true,
   }),
@@ -129,12 +130,21 @@ export default {
     },
     onMousedown(e){
       this.mousedownFlag = true;
+      this.mousedownOffset = {
+        x: e.offsetX,
+        y: e.offsetY,
+      };
       this.isDragging = false;
     },
     onMousemove(e){
-      if(this.mousedownFlag){
-        this.isDragging = true;
+      if(!this.mousedownFlag) {
+        return;
+      }
+
+      if(this.isDragging){
         this.adjustViewportPosition(-e.originalEvent.movementX, -e.originalEvent.movementY, 1);
+      }else if(Math.abs(this.mousedownOffset.x-e.offsetX) + Math.abs(this.mousedownOffset.y-e.offsetY) > 2){
+        this.isDragging = true;
       }
     },
     onMouseup(e){
