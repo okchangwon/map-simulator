@@ -1,6 +1,6 @@
 <template>
   <div class="grid-layer">
-    <table ref="table" :style="{width:tableWidth+'px', height:tableHeight+'px', left:adjustLeft+'px', top:adjustTop+'px'}">
+    <table ref="table" :class="{transparent:!visible}" :style="{width:tableWidth+'px', height:tableHeight+'px', left:adjustLeft+'px', top:adjustTop+'px'}">
       <tr v-for="row in cells">
         <td class="cell" v-for="cell in row" :key="cell.key" :style="{width:cellWidth+'px', height:cellHeight+'px'}" @click="onClickCell(cell)" :title="cell.x + ', ' + cell.y">
           <area-cell :x="cell.x" :y="cell.y" v-if="isArea(cell)"></area-cell>
@@ -26,6 +26,9 @@ export default {
     viewport: {
       type: Object,
     },
+    visible: {
+      type: Boolean,
+    }
   },
   data: () => ({
     rowCount: 40,
@@ -150,5 +153,8 @@ table {
 }
 .cell:hover {
   background-color:rgba(255,255,255,0.2);
+}
+table.transparent .cell{
+  border-color:transparent;
 }
 </style>

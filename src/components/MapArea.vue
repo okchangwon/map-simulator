@@ -2,9 +2,12 @@
   <div class="map-area" :class="{dragging:isDragging}">
     <div ref="stage" class="map-scroll-stage" @scroll="onScroll" @mousewheel.prevent="onMousewheel">
       <map-layer ref="mapLayer" :viewport="viewport"></map-layer>
-      <grid-layer :viewport="viewport" v-if="showGrid" @click="onClickGridCell"></grid-layer>
+      <grid-layer :viewport="viewport" :visible="showGridChecked" v-if="renderGrid" @click="onClickGridCell"></grid-layer>
     </div>
-    <div class="map-pos">{{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}</div>
+    <div class="map-pos">
+      {{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}<br />
+      <label><input type="checkbox" v-model="showGridChecked"> Grid</label>
+    </div>
   </div>
 </template>
 <script>
@@ -27,9 +30,10 @@ export default {
     scrollingTimer: null,
     mousedownFlag: false,
     isDragging: false,
+    showGridChecked: true,
   }),
   computed: {
-    showGrid () {
+    renderGrid () {
       return !HIDE_GRID_WHEN_SCROLLING || !this.isScrolling;
     },
   },
@@ -126,7 +130,6 @@ export default {
     onMousedown(e){
       this.mousedownFlag = true;
       this.isDragging = false;
-      console.log(this.mousedownFlag);
     },
     onMousemove(e){
       if(this.mousedownFlag){
@@ -149,6 +152,7 @@ export default {
     top:10px;
     font-size:14px;
     color:#fff;
+    user-select:none;
   }
   .map-scroll-stage {
     position:absolute;
