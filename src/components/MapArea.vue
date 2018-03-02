@@ -8,13 +8,31 @@
       {{Math.floor(viewport.left)}},{{Math.floor(viewport.top)}}<br />
       <label><input type="checkbox" v-model="showGridChecked"> Grid</label>
     </div>
+    <div class="map-selector">
+      <ul class="urban-list">
+        <li class="urban-item" v-for="(urbans, key) in islands" :class="{active:activeUrban===key}" @click="onClickUrban(key)"><span>{{getUrbanName(key)}}</span>
+          <ul class="map-list">
+            <li class="map-item" v-for="map in urbans" :class="{active:selectedMap===map.code}"><a href="#" @click.prevent="onClickMap(key, map.code)">{{map.name}}</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 <script>
 import MapLayer from './stage/MapLayer.vue';
 import GridLayer from './stage/GridLayer.vue';
+import islands from '../data/islands.js';
 
 const HIDE_GRID_WHEN_SCROLLING = true;
+
+const URBAN_NAMES = {
+  'asia-a':'도시섬 - 알파',
+  'asia-b':'도시섬 - 브라보',
+  'asia-c':'도시섬 - 찰리',
+  'asia-d':'도시섬 - 델타',
+  'asia-e':'도시섬 - 에코',
+};
 
 export default {
   name: 'MapArea',
@@ -32,11 +50,18 @@ export default {
     mousedownOffset: null,
     isDragging: false,
     showGridChecked: true,
+    activeUrban: null,
   }),
   computed: {
     renderGrid () {
       return !HIDE_GRID_WHEN_SCROLLING || !this.isScrolling;
     },
+    selectedMap () {
+      return this.$store.state.map.code;
+    },
+    islands () {
+      return islands;
+    }
   },
   mounted() {
     this.$nextTick(() => {
@@ -75,6 +100,9 @@ export default {
     }
   },
   methods: {
+    getUrbanName(urban){
+      return URBAN_NAMES[urban];
+    },
     setScroll() {
       $(this.$refs.stage).scrollLeft(this.viewport.left);
       $(this.$refs.stage).scrollTop(this.viewport.top);
@@ -144,31 +172,139 @@ export default {
     onMouseup(e){
       this.mousedownFlag = false;
       this.isDragging = false;
-    }
+    },
+    onClickUrban(urban){
+      this.activeUrban = this.activeUrban === urban ? null : urban;
+    },
+    onClickMap(urban, code){
+      this.$store.commit('changeMap', {
+        urban, code
+      });
+      this.$nextTick(() => {
+        this.setViewportToCenter();
+      })
+    },
   }
 }
 </script>
 
 <style scoped>
-  .map-pos {
-    position:absolute;
-    left:10px;
-    top:10px;
-    font-size:14px;
-    color:#fff;
-    user-select:none;
-  }
-  .map-scroll-stage {
-    position:absolute;
-    top:0;
-    left:0;
-    right:0;
-    bottom:0;
-    background-color:#122549;
-    overflow:auto;
-  }
+.map-pos {
+  position:absolute;
+  right:255px;
+  top:10px;
+  font-size:14px;
+  color:#fff;
+  user-select:none;
+  text-align:right;
+}
+.map-scroll-stage {
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background-color:#122549;
+  overflow:auto;
+}
 
-  .map-area.dragging {
-    cursor:move;
-  }
+.map-area.dragging {
+  cursor:move;
+}
+
+.map-selector {
+  position:absolute;
+  left:10px;
+  top:10px;
+  width:150px;
+  font-size:12px;
+  user-select:none;
+  background-color:rgba(255,255,255,1);
+  border-radius:3px;
+  color:#000;
+  border:1px solid #000;
+}
+
+.map-selector ul {
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+
+.urban-list {
+
+}
+
+.urban-list .urban-item {
+  position:relative;
+}
+
+.urban-list .urban-item>span {
+  display:block;
+  padding:10px;
+  border-top:1px solid #ccc;
+  cursor:pointer;
+}
+
+.urban-list .urban-item:first-child>span{
+  border-top:none;
+}
+
+.urban-list .urban-item::after {
+  content:"+";
+  position:absolute;
+  right:10px;
+  top:5px;
+  font-size:25px;
+  color:#666;
+}
+
+.urban-list .urban-item.active::after {
+  content:"-";
+}
+
+.map-list {
+  max-height:400px;
+  overflow-y:auto;
+  background-color:#f0f0f0;
+}
+
+.map-list .map-item {
+  display:none;
+}
+
+.map-list .map-item a {
+  display:block;
+  padding:5px;
+  border-top:1px solid #ccc;
+  font-size:11px;
+  color:#333;
+  text-decoration:none;
+}
+
+.map-list .map-item a:hover {
+  background-color:#eee;
+}
+
+.map-list .map-item a::before {
+  content: "-";
+  display:inline-block;
+  padding:0 5px;
+}
+
+.urban-list .urban-item.active .map-item {
+  display:block;
+}
+
+.map-list .map-item.active {
+  display:block;
+}
+
+.map-list .map-item.active a {
+  background-color:#e5e5e5;
+}
+
+.map-list .map-item.active a::before {
+  content: ">";
+}
 </style>

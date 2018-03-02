@@ -8,6 +8,10 @@
   </table>
 </template>
 <script>
+import islands from '../../data/islands.js';
+
+const USE_LOCAL_IMAGE = false;
+
 export default {
   name: 'MapLayer',
   props: {
@@ -20,7 +24,6 @@ export default {
     rowCount: 41,
     tileWidth: 960,
     tileHeight: 540,
-    tileImagePath: 'static/map/bravo/enchiladacoke',
     mapWidth: 0,
     mapHeight: 0,
     tiles: [],
@@ -80,7 +83,15 @@ export default {
       this.tiles = tiles;
     },
     getSourceURL(x, y) {
-      return `${this.tileImagePath}/${x}_${y}.jpeg`;
+      if(USE_LOCAL_IMAGE) {
+        const {urban, code} = this.$store.state.map;
+        return `static/map/${urban}/${code}/${x}_${y}.jpeg`;
+      }else {
+        const {urban, code} = this.$store.state.map;
+        const island = islands[urban].find(v => v.code===code);
+
+        return `https://d2tc3yqdqbpwb8.cloudfront.net/${code}/${island.timestamp}/2/${x}_${y}.jpeg`;
+      }
     },
     onLoadImage(tile) {
       tile.loaded = true;
