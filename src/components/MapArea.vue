@@ -81,25 +81,30 @@ export default {
       $(window).on('mousemove', this.onMousemove.bind(this));
       $(window).on('mouseup', this.onMouseup.bind(this));
 
-      if(localStorage.getItem('viewportLeft')) {
-        this.viewport.left = localStorage.getItem('viewportLeft');
-        this.viewport.top = localStorage.getItem('viewportTop');
+      if(localStorage.getItem('viewportLeft_' + this.$store.state.map.code)) {
+        this.setViewportByLocalstorage();
       }else{
-        this.setViewportToCenter();
+        //this.setViewportToCenter();
+        this.viewport.left = 21871;
+        this.viewport.top = 10200;
       }
     })
   },
   watch: {
     'viewport.left' (value) {
       $(this.$refs.stage).scrollLeft(value);
-      localStorage.setItem('viewportLeft', value);
+      localStorage.setItem('viewportLeft_' + this.$store.state.map.code, value);
     },
     'viewport.top' (value) {
       $(this.$refs.stage).scrollTop(value);
-      localStorage.setItem('viewportTop', value);
+      localStorage.setItem('viewportTop_' + this.$store.state.map.code, value);
     }
   },
   methods: {
+    setViewportByLocalstorage(){
+      this.viewport.left = localStorage.getItem('viewportLeft_' + this.$store.state.map.code);
+      this.viewport.top = localStorage.getItem('viewportTop_' + this.$store.state.map.code);
+    },
     getUrbanName(urban){
       return URBAN_NAMES[urban];
     },
@@ -181,7 +186,11 @@ export default {
         urban, code
       });
       this.$nextTick(() => {
-        this.setViewportToCenter();
+        if(localStorage.getItem('viewportLeft_' + this.$store.state.map.code)) {
+          this.setViewportByLocalstorage();
+        }else{
+          this.setViewportToCenter();
+        }
       })
     },
   }
