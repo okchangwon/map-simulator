@@ -8,7 +8,7 @@
           :class="{selected:selectedOwnerId===owner.id}"
           @click="onClickOwner(owner)"
           @dblclick="onDblclick(owner)">
-        <button :style="{'background-color':owner.color}">{{owner.name}}</button>
+        <button :style="{'background-color':owner.color}">{{owner.name}} <span class="count">({{getOwnerAreaCount(owner.id)}})</span></button>
         <span class="remove-btn" @click.stop="onClickRemoveOwner(owner)" @dblclick.stop="">삭제</span>
       </li>
     </ul>
@@ -26,6 +26,9 @@
       }
     },
     methods: {
+      getOwnerAreaCount (ownerId) {
+        return this.$store.state.area.areas.filter(v => v.ownerId === ownerId).length;
+      },
       onClickOwner (owner) {
         this.$store.commit('toggleOwner', {
           ownerId: owner.id
@@ -99,6 +102,8 @@
     color:#fff;
     outline:none;
     cursor:pointer;
+    white-space:nowrap;
+    overflow:hidden;
   }
 
   .area-tool li.add button {
@@ -107,6 +112,10 @@
 
   .area-tool li.selected button {
     border:3px dashed #fff;
+  }
+
+  .area-tool li .count {
+    display:block;
   }
 
   .area-tool .remove-btn {

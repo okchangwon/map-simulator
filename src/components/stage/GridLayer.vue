@@ -2,7 +2,7 @@
   <div class="grid-layer">
     <table ref="table" :class="{transparent:!visible}" :style="{width:tableWidth+'px', height:tableHeight+'px', left:adjustLeft+'px', top:adjustTop+'px'}">
       <tr v-for="row in cells">
-        <td class="cell" v-for="cell in row" :key="cell.key" :style="{width:cellWidth+'px', height:cellHeight+'px'}" @click="onClickCell(cell)" :title="cell.x + ', ' + cell.y">
+        <td class="cell" v-for="cell in row" :key="cell.key" :style="{width:cellWidth+'px', height:cellHeight+'px'}" @click="onClickCell(cell)">
           <area-cell :x="cell.x" :y="cell.y" v-if="isArea(cell)" />
           <dimmed-cell v-if="isDimmed(cell)" />
         </td>

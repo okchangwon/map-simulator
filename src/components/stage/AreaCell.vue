@@ -1,7 +1,7 @@
 <template>
   <span class="area-cell"
         v-if="area && owner"
-        :style="{'background-color':backgroundColor}">{{owner.name}}</span>
+        :style="{'background-color':backgroundColor}"><span class="name">{{owner.name}}</span></span>
 </template>
 
 <script>
@@ -33,7 +33,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .area-cell {
   display:block;
   position:absolute;
@@ -42,5 +42,14 @@ export default {
   right:0;
   bottom:0;
   line-height:35px;
+  overflow:hidden;
+}
+
+.name {
+  display:block;
+  transform: rotate(-45deg);
+  white-space:nowrap;
+  text-align:center;
+  text-overflow-ellipsis: ellipsis;
 }
 </style>

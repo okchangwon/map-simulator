@@ -180,6 +180,17 @@ export default {
     },
     onClickUrban(urban){
       this.activeUrban = this.activeUrban === urban ? null : urban;
+
+      // 목록 열었을 때 스크롤
+      this.$nextTick(() => {
+        if(this.activeUrban && this.islands[urban].find(v => v.code===this.selectedMap)){
+          const $selectedItem = $(this.$el).find('.map-item.active a');
+          const $list = $selectedItem.closest('.map-list');
+
+          $list.scrollTop($selectedItem.offset().top - $list.offset().top);
+          $selectedItem.focus();
+        }
+      });
     },
     onClickMap(urban, code){
       this.$store.commit('changeMap', {
@@ -289,16 +300,25 @@ export default {
   font-size:11px;
   color:#333;
   text-decoration:none;
+  outline:none;
 }
 
 .map-list .map-item a:hover {
-  background-color:#eee;
+  background-color:#e5e5e5;
 }
 
 .map-list .map-item a::before {
   content: "-";
   display:inline-block;
   padding:0 5px;
+}
+
+.map-list .map-item.active a {
+  background-color:#e5e5e5;
+}
+
+.map-list .map-item.active a::before {
+  content: ">>";
 }
 
 .urban-list .urban-item.active .map-item {
@@ -309,11 +329,4 @@ export default {
   display:block;
 }
 
-.map-list .map-item.active a {
-  background-color:#e5e5e5;
-}
-
-.map-list .map-item.active a::before {
-  content: ">";
-}
 </style>
