@@ -30,6 +30,10 @@ export default {
       findedAreas.forEach(area => {
         state.areas.splice(state.areas.indexOf(area), 1);
       });
+
+      if(state.selectedOwnerId === payload.ownerId){
+        state.selectedOwnerId = null;
+      }
     },
     toggleOwner (state, payload) {
       state.selectedOwnerId = state.selectedOwnerId === payload.ownerId ? null : payload.ownerId;
